@@ -8,7 +8,7 @@ With(
         jsonData: ParseJSON(ParseFlipcardJSON.Run().res)
     },
     ClearCollect(
-        colData,
+        colAllFlashcards,
         ForAll(
             Sequence(CountRows(jsonData.flashcards)),
             With(
@@ -25,4 +25,31 @@ With(
         )
     )
 );
+```
+
+## If you enable UDF you can call a Void Function in App > Formulas
+
+```
+// Load master data via flow, parse, and normalize into colAllFlashcards
+fnLoadData() : Void = {
+    Set(varRawJson, ParseFlipcardJSON.Run().res);
+    Set(varAllCardsRaw, ParseJSON(varRawJson).flashcards);
+    ClearCollect(
+        colAllFlashcards,
+        ForAll(
+            Sequence(CountRows(varAllCardsRaw)),
+            With(
+                { rec: Index(varAllCardsRaw, Value) },
+                {
+                    id: Text(rec.id),
+                    question: Text(rec.question),
+                    answer: Text(rec.answer),
+                    category: Text(rec.category),
+                    knownCount: Value(rec.knownCount),
+                    orderID: Value
+                }
+            )
+        )
+    );
+};
 ```
